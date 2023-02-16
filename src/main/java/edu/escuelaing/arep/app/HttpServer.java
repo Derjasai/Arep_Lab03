@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.HashMap;
 
 import edu.escuelaing.arep.app.services.PagesService;
+import edu.escuelaing.arep.app.spark.Spark;
 import org.json.*;
 
 /**
@@ -27,6 +28,7 @@ public class HttpServer {
      * @throws IOException exception
      */
     public void run (String[] args) throws IOException {
+        Spark spark = Spark.getInstance();
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(35000);
@@ -70,6 +72,7 @@ public class HttpServer {
             }
 
             if (request.startsWith("/apps/")) {
+                //outputLine = spark.getSerivices().get(request.substring(5));
                 outputLine = executeService(request.substring(5));
                 //outputLine = jsonSimple();
             }
@@ -88,7 +91,10 @@ public class HttpServer {
                         + "\r\n"
                         + index();
             }
-            out.println(outputLine);
+            System.out.println(spark.getSerivices().get("/"));
+            out.println("\"HTTP/1.1 200 \\r\\n\" +\n" +
+                    "                \"Content-type: text/txt \\r\\n\" +\n" +
+                    "                \"\\r\\n\" + \"Hola\"");
             out.close();
             in.close();
             clientSocket.close();
