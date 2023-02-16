@@ -72,8 +72,28 @@ public class HttpServer {
             }
 
             if (request.startsWith("/apps/")) {
-                //outputLine = spark.getSerivices().get(request.substring(5));
-                outputLine = executeService(request.substring(5));
+                String path = request.substring(5);
+                String res = spark.getService(path);
+                if(res == null){
+                    spark.get(request.substring(5), ((requests, response) -> {
+                        try{
+                            String type = path.split("\\.")[1];
+                            response.setType("text/"+type);
+                            response.setCode("200 OK");
+                            response.setPath(path);
+                            return response.getResponse();
+                        }catch (Exception e){
+                            response.setType("text/html");
+                            response.setCode("404 OK");
+                            response.setPath("404.html");
+                            return response.getResponse();
+                        }
+
+                    }));
+                    res = spark.getService(path);
+                }
+                outputLine = res;
+                //outputLine = executeService(request.substring(5));
                 //outputLine = jsonSimple();
             }
             else if(!title.equals("")){
@@ -91,10 +111,7 @@ public class HttpServer {
                         + "\r\n"
                         + index();
             }
-            System.out.println(spark.getSerivices().get("/"));
-            out.println("\"HTTP/1.1 200 \\r\\n\" +\n" +
-                    "                \"Content-type: text/txt \\r\\n\" +\n" +
-                    "                \"\\r\\n\" + \"Hola\"");
+            out.println(outputLine);
             out.close();
             in.close();
             clientSocket.close();

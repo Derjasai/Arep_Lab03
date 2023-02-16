@@ -16,9 +16,12 @@ public class App {
      */
     public static void main(String[] args) throws IOException {
         Spark spark = Spark.getInstance();
-        spark.get("/", ((request, response) -> {return "HTTP/1.1 200 \r\n" +
-                "Content-type: text/html \r\n" +
-                "\r\n" + "Hola";}));
+        spark.get("/", ((request, response) -> {
+            response.setType("application/json");
+            response.setCode("200 OK");
+            response.setPath("test.json");
+            return response.getResponse();
+        }));
 
         HttpServer server = HttpServer.getInstance();
         server.run(args);

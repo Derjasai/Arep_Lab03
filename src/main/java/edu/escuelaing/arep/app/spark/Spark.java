@@ -6,7 +6,7 @@ public class Spark {
 
     private static Spark instance;
 
-    private HashMap<String, Route> services = new HashMap<>();
+    private HashMap<String, String> services = new HashMap<>();
 
     private Spark(){}
 
@@ -18,10 +18,14 @@ public class Spark {
     }
 
     public void get(String path, Route route){
-        services.put(path, route);
-    }
-    public HashMap<String, Route> getSerivices(){
-        return services;
+        Response response = new Response();
+        Request request = new Request();
+
+        String res = route.handle(request,response);
+        services.put(path, res);
     }
 
+    public String getService(String path){
+        return services.get(path);
+    }
 }
