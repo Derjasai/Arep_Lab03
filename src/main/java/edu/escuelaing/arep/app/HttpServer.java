@@ -91,7 +91,7 @@ public class HttpServer {
                                 return response.getResponse();
                             }catch (Exception e){
                                 response.setType("text/html");
-                                response.setCode("404 OK");
+                                response.setCode("404 Not Found");
                                 response.setPath("404.html");
                                 response.setBody();
                                 return response.getResponse();
