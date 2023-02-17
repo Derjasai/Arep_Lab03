@@ -51,18 +51,22 @@ public class HttpServer {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(
                             clientSocket.getInputStream()));
-            String inputLine, outputLine, title="";
+            String inputLine,title="";
 
+            String outputLine = "";
             boolean first_line = true;
             String request = "/simple";
+            String verb = "GET";
 
             while ((inputLine = in.readLine()) != null) {
+                //System.out.println(inputLine);
                 if(inputLine.contains("info?title=")){
                     String[] prov = inputLine.split("title=");
                     title = (prov[1].split("HTTP")[0]).replace(" ", "");
                 }
                 if (first_line) {
                     request = inputLine.split(" ")[1];
+                    verb = inputLine.split(" ")[0];
                     first_line = false;
                 }
                 //System.out.println("Received: " + inputLine);
@@ -73,30 +77,46 @@ public class HttpServer {
 
             if (request.startsWith("/apps/")) {
                 String path = request.substring(5);
-                String res = spark.getService(path);
-                if(res == null){
-                    spark.get(request.substring(5), ((requests, response) -> {
-                        try{
-                            String type = path.split("\\.")[1];
-                            response.setType("text/"+type);
-                            response.setCode("200 OK");
-                            response.setPath(path);
-                            return response.getResponse();
-                        }catch (Exception e){
-                            response.setType("text/html");
-                            response.setCode("404 OK");
-                            response.setPath("404.html");
-                            return response.getResponse();
-                        }
+                //System.out.println(path);
+                if (verb.equals("GET")) {
+                    String res = spark.getService(path);
+                    if(res == null){
+                        spark.get(request.substring(5), ((requests, response) -> {
+                            try{
+                                String type = path.split("\\.")[1];
+                                response.setType("text/"+type);
+                                response.setCode("200 OK");
+                                response.setPath(path);
+                                response.setBody();
+                                return response.getResponse();
+                            }catch (Exception e){
+                                response.setType("text/html");
+                                response.setCode("404 OK");
+                                response.setPath("404.html");
+                                response.setBody();
+                                return response.getResponse();
+                            }
 
-                    }));
-                    res = spark.getService(path);
+                        }));
+                        res = spark.getService(path);
+                        outputLine = res;
                 }
-                outputLine = res;
+
+                }else if (verb.equals("POST")) {
+                    outputLine = spark.post(path, ((requests, response) -> {
+                        String paths = path.split("\\?")[0];
+                        String query = path.split("\\?")[1];
+                        response.setType("application/json");
+                        response.setCode("201 Created");
+                        response.setPath(paths);
+                        response.setBody(query);
+                        return response.getResponse();
+                    }));
+
+                }
                 //outputLine = executeService(request.substring(5));
                 //outputLine = jsonSimple();
-            }
-            else if(!title.equals("")){
+            }else if(!title.equals("")){
                 String response = APIConnection.requestTitle(title, "http://www.omdbapi.com/?t="+title+"&apikey=7ca9f0c2");
                 outputLine ="HTTP/1.1 200 OK\r\n"
                         + "Content-Type: text/html\r\n"

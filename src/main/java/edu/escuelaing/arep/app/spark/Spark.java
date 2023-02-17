@@ -25,6 +25,13 @@ public class Spark {
         services.put(path, res);
     }
 
+    public String post(String path, Route route){
+        Response response = new Response();
+        Request request = new Request();
+        services.put(path, route.handle(request,response));
+        return route.handle(request,response);
+    }
+
     public String getService(String path){
         return services.get(path);
     }

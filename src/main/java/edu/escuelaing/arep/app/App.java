@@ -20,6 +20,7 @@ public class App {
             response.setType("application/json");
             response.setCode("200 OK");
             response.setPath("test.json");
+            response.setBody();
             return response.getResponse();
         }));
 

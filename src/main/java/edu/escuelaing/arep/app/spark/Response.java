@@ -10,6 +10,8 @@ public class Response {
     private String code;
     private String type;
 
+    private String body;
+
 
 
     public String getResponse(){
@@ -23,13 +25,21 @@ public class Response {
     }
 
     public String getBody() {
+        return body;
+    }
+
+    public void setBody(){
         byte[] fileContent;
         try {
             fileContent = Files.readAllBytes(Paths.get(getPath()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return new String(fileContent);
+        body = new String(fileContent);
+    }
+
+    public void setBody(String body) {
+        this.body = body;
     }
 
     public String getType() {
